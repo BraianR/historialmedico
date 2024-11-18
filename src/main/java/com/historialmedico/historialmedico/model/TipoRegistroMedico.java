@@ -1,7 +1,11 @@
 package com.historialmedico.historialmedico.model;
 
-public enum TipoRegistroMedico {
+import java.io.Serializable;
+
+public enum TipoRegistroMedico implements Serializable {
+
     CONSULTA,
     EXAMEN,
     INTERNACION
+
 }
