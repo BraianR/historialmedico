@@ -4,6 +4,7 @@ import com.historialmedico.historialmedico.model.Paciente;
 import com.historialmedico.historialmedico.model.RegistroMedico;
 import com.historialmedico.historialmedico.repository.PacienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -22,7 +23,7 @@ public class PacienteService {
     }
 
     public Paciente agregarPaciente(Paciente paciente) throws Exception {
-        Optional<Paciente> pacienteExistente = pacienteRepository.findByCi(paciente.getCi());
+        Optional<Paciente> pacienteExistente = obtenerPaciente(paciente.getCi());
         if (pacienteExistente.isPresent()) {
             throw new Exception("El paciente ya existe");
         }
@@ -30,7 +31,7 @@ public class PacienteService {
     }
 
     public Paciente agregarRegistroMedico(String ci, RegistroMedico registroMedico) throws Exception {
-        Optional<Paciente> pacienteOptional = pacienteRepository.findByCi(ci);
+        Optional<Paciente> pacienteOptional = obtenerPaciente(ci);
 
         if (!pacienteOptional.isPresent())
             throw new Exception("No existe un paciente con la cedula aportada como parametro");
@@ -41,7 +42,7 @@ public class PacienteService {
     }
 
     public List<RegistroMedico> consultarHistorialMedico(String ci, int page, int size) throws Exception {
-        Optional<Paciente> pacienteOptional = pacienteRepository.findByCi(ci);
+        Optional<Paciente> pacienteOptional = obtenerPaciente(ci);
 
         if (!pacienteOptional.isPresent())
             throw new Exception("No existe un paciente con la cedula aportada como parametro");
@@ -67,7 +68,7 @@ public class PacienteService {
             String medico,
             String institucion) throws Exception {
 
-        Optional<Paciente> pacienteOptional = pacienteRepository.findByCi(ci);
+        Optional<Paciente> pacienteOptional = obtenerPaciente(ci);
 
         if (!pacienteOptional.isPresent())
             throw new Exception("No existe un paciente con la cedula aportada como parametro");
@@ -80,6 +81,12 @@ public class PacienteService {
                 .filter(r -> medico == null || r.getMedico().equalsIgnoreCase(medico))
                 .filter(r -> institucion == null || r.getInstitucion().equalsIgnoreCase(institucion))
                 .collect(Collectors.toList());
+    }
+
+    @Cacheable(value = "pacientes", key = "#ci")
+    public Optional<Paciente> obtenerPaciente(String ci) {
+        System.out.println("Consultando MongoDB...");
+        return pacienteRepository.findByCi(ci);
     }
 
 }
