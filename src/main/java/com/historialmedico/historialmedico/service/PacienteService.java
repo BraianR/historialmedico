@@ -18,12 +18,12 @@ public class PacienteService {
 
     private final PacienteRepository pacienteRepository;
 
-    private final PacienteServiceWithRedis pivot;
+    private final PacienteServiceWithRedis pacienteServiceWithRedis;
 
     @Autowired
-    public PacienteService(PacienteRepository pacienteRepository, PacienteServiceWithRedis pivot) {
+    public PacienteService(PacienteRepository pacienteRepository, PacienteServiceWithRedis pacienteServiceWithRedis) {
         this.pacienteRepository = pacienteRepository;
-        this.pivot = pivot;
+        this.pacienteServiceWithRedis = pacienteServiceWithRedis;
     }
 
     public Paciente agregarPaciente(Paciente paciente) throws Exception {
@@ -72,7 +72,7 @@ public class PacienteService {
             String medico,
             String institucion) throws Exception {
 
-        Optional<Paciente> pacienteOptional = pivot.obtenerPaciente(ci);
+        Optional<Paciente> pacienteOptional = pacienteServiceWithRedis.obtenerPaciente(ci);
 
         if (!pacienteOptional.isPresent())
             throw new Exception("No existe un paciente con la cedula aportada como parametro");
